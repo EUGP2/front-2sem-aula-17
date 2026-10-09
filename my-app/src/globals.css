@@ -2,15 +2,24 @@
 
 @layer{
     body{
-        @apply h-screen w-screen;
+        @apply min-h-screen;
+    }
+
+    #root{
+        @apply min-h-screen w-full;
     }
 
     main{
-        @apply bg-blue-100;
+        @apply flex-1 min-w-0 bg-blue-100;
     }
 
-    .container{
-        @apply flex flex-col justify-between h-screen w-screen; 
+    .app-layout{
+        @apply flex flex-col min-h-screen w-full;
+    }
+
+    .app-layout > header,
+    .app-layout > footer{
+        @apply shrink-0;
     }
 
     .frmCad{
