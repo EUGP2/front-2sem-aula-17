@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
 @layer{
+    :root{
+        --site-frame-bg: #284b43;
+        --site-frame-text: #f4f7f0;
+        --home-bg: #e8efe5;
+        --home-text: #243c35;
+    }
+
     body{
         @apply min-h-screen;
     }
@@ -20,6 +27,16 @@
     .app-layout > header,
     .app-layout > footer{
         @apply shrink-0;
+    }
+
+    .site-frame{
+        background-color: var(--site-frame-bg);
+        color: var(--site-frame-text);
+    }
+
+    .home-page{
+        background-color: var(--home-bg);
+        color: var(--home-text);
     }
 
     .frmCad{

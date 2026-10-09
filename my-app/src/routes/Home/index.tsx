@@ -22,7 +22,7 @@ const estojo = {
 
 
   return (
-    <main>
+    <main className="home-page">
         <h2>Home</h2>
 
         <div>
