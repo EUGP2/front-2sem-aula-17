@@ -1,40 +1,21 @@
-import { useState } from "react";
+import { useState } from 'react'
 
+// Exemplo da aula: o estado atualiza a tela quando o nome muda.
 export default function Conteudo() {
+  const nomeComum = 'Flávio'
+  const [nomeState, setNomeState] = useState('Juquinha')
 
-  let nomeComum: string | null = "flavio";
-  function alterNomeComum() {
-    nomeComum = prompt("digite o novo nome!");
-    console.log("nome alterado : ", nomeComum)
+  function alterarNome() {
+    const novoNome = prompt('Digite o novo nome:')
+    if (novoNome?.trim()) setNomeState(novoNome.trim())
   }
-
-  const [nomeState, setNomeState] = useState<string | null>("juquinha");
-  function alterNomeState() {
-    const nome: string | null = prompt("digite o novo nome")
-    setNomeState(nome);
-    console.log("Nome alterado : ", nomeState);
-  }
-
 
   return (
-    <main>
-        <h2>Conteudo Principal</h2>
-
-        <figure>
-            <img src="https://placehold.co/600x400/FFFFF0/FFFFFF/png" alt="Imagem ilustrativa do conteúdo" />
-
-            <figcaption>Imagem utilizada para representar o conteúdo da aplicação.</figcaption>
-        </figure>
-
-               <div>
-        <p>Nome Comum : {nomeComum}</p>
-        <button onClick={alterNomeComum}>Nome Alterado = {nomeComum}</button>
-      </div>
-
-      <div>
-        <p>Nome State : {nomeState}</p>
-        <button onClick={alterNomeState}>Nome alterado State = {nomeState}</button>
-      </div>
-    </main>
+    <section className="exercicio">
+      <h2>Exemplo de estado</h2>
+      <p>Nome inicial: {nomeComum}</p>
+      <p>Nome no estado: {nomeState}</p>
+      <button type="button" className="botao" onClick={alterarNome}>Alterar nome</button>
+    </section>
   )
 }

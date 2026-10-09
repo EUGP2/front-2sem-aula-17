@@ -1,13 +1,14 @@
-import { Link } from 'react-router'
+import { NavLink } from 'react-router'
+import { modoLocal } from '../../services/produtos'
 
 export default function Menu() {
-    return ( 
-        <nav>
-            <ul>
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/produtos">Produto</Link></li>
-                <li><Link to="/users/git">Lista de Usuarios Git</Link></li>
-                <li><Link to="/cad-produto/">Cadastro de Produto</Link></li>
+    return (
+        <nav aria-label="Navegação principal">
+            <ul className="menu">
+                <li><NavLink to="/" end>Início</NavLink></li>
+                <li><NavLink to="/produtos">Produtos</NavLink></li>
+                <li><NavLink to="/users/git">Usuários GitHub</NavLink></li>
+                {modoLocal && <li><NavLink to="/cad-produto/">Cadastrar produto</NavLink></li>}
             </ul>
         </nav>
     )
