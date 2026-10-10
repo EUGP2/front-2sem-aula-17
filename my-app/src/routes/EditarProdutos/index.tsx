@@ -1,57 +1,106 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
-import FormularioProduto from '../../components/FormularioProduto'
-import { buscarProduto, modoLocal, salvarProduto } from '../../services/produtos'
-import type { DadosProduto, TipoProduto } from '../../types/types'
+import { useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router";
+import { modoLocal } from "../../services/produtos";
+import type { TipoProduto } from "../../types/types";
+import { useForm } from "react-hook-form";
 
 export default function EditarProdutos() {
-  const { id } = useParams<{ id: string }>()
-  // Uma mudança de ID inicia um formulário novo, sem mostrar o produto anterior.
-  return <EditarProduto key={id} id={id} />
-}
 
-function EditarProduto({ id }: { id?: string }) {
-  const navigate = useNavigate()
-  const [produto, setProduto] = useState<TipoProduto | null>(null)
-  const [erro, setErro] = useState('')
-  const [carregando, setCarregando] = useState(modoLocal)
+  const { id } = useParams<{ id: string }>();
+
+  const { register, reset,handleSubmit, formState: { errors } } = useForm<TipoProduto>({
+    defaultValues: { id: "", nome: "", preco: 0, estoque: 0, avatar: "" },
+    mode: "onChange"
+  });
 
   useEffect(() => {
-    document.title = 'Editar produto | Catálogo da aula'
-    if (!modoLocal) return
-    const controller = new AbortController()
-    let ativo = true
-    async function carregar() {
+    if (!modoLocal) return;
+
+    const carregaProduto = async () => {
       try {
-        if (!id) throw new Error('Produto não encontrado.')
-        const dados = await buscarProduto(id, controller.signal)
-        if (ativo) setProduto(dados)
-      } catch (erro) {
-        if (ativo) setErro(erro instanceof Error ? erro.message : 'Não foi possível carregar o produto.')
-      } finally {
-        if (ativo) setCarregando(false)
+
+        const response = await fetch(`http://localhost:3001/produtos/${id}`);
+
+        if (!response.ok) {
+          throw new Error(`Falha na requisição do produto... ${response.status} - ${response.statusText}`);
+        }
+
+        const data: TipoProduto = await response.json();
+        console.log(data);
+        reset(data);
+
+      } catch (error) {
+        console.error(error);
       }
     }
-    carregar()
-    return () => { ativo = false; controller.abort() }
-  }, [id])
+    carregaProduto();
+  }, [id, reset])
 
-  async function atualizar(dados: DadosProduto) {
-    if (!produto) throw new Error('Carregue o produto antes de salvar.')
-    await salvarProduto(dados, produto.id)
-    navigate('/produtos')
+  const navigate = useNavigate();
+
+  const onSubmit  = async (data:TipoProduto)=>{
+    try {
+
+      const response = await fetch(`http://localhost:3001/produtos/${data.id}`, {
+        method: "PUT",
+        headers:{
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data)
+      });
+
+      //ERRO
+      if (!response.ok) {
+        throw new Error(`Falha na atualização do produto... ${response.status} - ${response.statusText}`);
+      }
+
+      //SUCESSO
+      alert("Produto atualizado com sucesso!");
+      navigate("/produtos");
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  if (!modoLocal) {
+    return (
+      <main>
+        <h2>Editar Produtos</h2>
+        <p>A edição é um exercício da aula com a API local. A lista do professor é somente para consulta.</p>
+        <Link to="/produtos">Voltar para Produtos</Link>
+      </main>
+    );
   }
 
   return (
-    <main id="conteudo" className="pagina" tabIndex={-1}>
-      <div className="pagina-topo"><div><h1>Editar produto</h1><p className="subtitulo">Atualize um produto da API local da aula.</p></div></div>
-      {!modoLocal ? <div className="aviso"><p>A lista do professor é somente para consulta. A edição fica disponível no modo local, descrito no README do projeto.</p><Link className="botao" to="/produtos">Ver produtos</Link></div> : (
-        <>
-          {carregando && <p className="aviso" role="status">Carregando produto…</p>}
-          {erro && <div className="aviso aviso-erro" role="alert"><p>{erro}</p><Link className="botao botao-secundario" to="/produtos">Voltar para produtos</Link></div>}
-          {produto && <FormularioProduto key={produto.id} produto={produto} textoBotao="Salvar alterações" onSalvar={atualizar} />}
-        </>
-      )}
+    <main>
+      <h2>Editar Produtos</h2>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <fieldset>
+          <legend>Dados do Produto</legend>
+          <div>
+            <label htmlFor="nome">Nome do Produto </label>
+            <input type="text" id="nome" {...register("nome", { required: "É obrigatório um nome para o produto!", minLength:{value:3,message:"Permitido apenas nomes com no mínimo 3 caracteres!"} })} />
+            {errors.nome?.message && <span style={{ color: "#ff0000" }}>{errors.nome?.message}</span>}
+          </div>
+          <div>
+            <label htmlFor="preco">Preço </label>
+            <input type="number" step={0.1} id="preco" {...register("preco", { required: "É obrigatório digitar um valor!", min: { value: 1, message: "Permitidos apenas valores maiores que zero!" } })} />
+            {errors.preco?.message && <span style={{ color: "#ff0000" }}>{errors.preco?.message}</span>}
+          </div>
+          <div>
+            <label htmlFor="estoque">Estoque </label>
+            <input type="number" step={1} id="estoque" {...register("estoque", { required: "É obrigatório digitar um valor!", min: { value: 1, message: "Permitidos apenas valores maiores que zero!" } })} />
+            {errors.estoque?.message && <span style={{ color: "#ff0000" }}>{errors.estoque?.message}</span>}
+          </div>
+
+              <div>
+                <button type="submit">ATUALIZAR</button>
+              </div>
+
+        </fieldset>
+      </form>
     </main>
   )
 }
